@@ -1,11 +1,11 @@
+# ingress.yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: treasure
   namespace: treasure-hunt
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
+  ingressClassName: traefik
   rules:
     - http:
         paths:
@@ -14,12 +14,5 @@ spec:
             backend:
               service:
                 name: treasure-ana
-                port:
-                  number: 80
-          - path: /brayan
-            pathType: Prefix
-            backend:
-              service:
-                name: treasure-brayan
                 port:
                   number: 80
