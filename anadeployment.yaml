@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: treasure-ana
+  namespace: treasure-hunt
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: treasure-ana
+  template:
+    metadata:
+      labels:
+        app: treasure-ana
+    spec:
+      containers:
+        - name: web
+          image: fredyball/treasure-fe:latest
+          ports:
+            - containerPort: 80
+          env:
+            - name: TITLE
+              value: "Treasure Hunt — Ana"
+            - name: STUDENT
+              value: "ana"
+            - name: SALT
+              value: "DS3univalle"
+            - name: KEY_HASH
+              value: "76ed6cf365c36cf8c05792c681a0b7d3008d0a2b6d932d7a34457e0920e8a513"
+            - name: CLUE
+              valueFrom:
+                secretKeyRef:
+                  name: ana-clue
+                  key: CLUE
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: treasure-ana
+  namespace: treasure-hunt
+spec:
+  selector:
+    app: treasure-ana
+  ports:
+    - port: 80
+      targetPort: 80
+  type: ClusterIP
+

@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Treasure Hunt</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg1:#0f172a; --bg2:#0b1022; --card:#0b122b; --muted:#9aa4b2;
+      --text:#e5e7eb; --accent:#60a5fa; --ok:#22c55e; --bad:#ef4444;
+      --ring: rgba(96,165,250,.45);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji", "Segoe UI Symbol";
+      color:var(--text);
+      background: radial-gradient(1200px 800px at 20% 10%, #12204a 0%, rgba(18,32,74,0) 55%),
+                  radial-gradient(1000px 700px at 80% 90%, #1c2d6b 0%, rgba(28,45,107,0) 55%),
+                  linear-gradient(180deg, var(--bg1), var(--bg2));
+      display:grid; place-items:center; padding:24px;
+    }
+    .card{
+      width:100%; max-width:560px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:20px; padding:28px;
+      box-shadow:0 20px 60px rgba(0,0,0,.35);
+      backdrop-filter: blur(8px);
+      position:relative; overflow:hidden;
+    }
+    .header{
+      display:flex; align-items:center; gap:14px; margin-bottom:16px;
+    }
+    .lock{
+      width:42px; height:42px; border-radius:12px;
+      display:grid; place-items:center;
+      background:conic-gradient(from 180deg at 50% 50%, #1f3d7a, #2a5fb6, #1f3d7a);
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow: inset 0 0 18px rgba(96,165,250,.35), 0 10px 30px rgba(13,34,79,.35);
+    }
+    h1{font-size:20px; margin:0}
+    .sub{color:var(--muted); font-size:14px; margin:0}
+    .form{
+      display:flex; gap:10px; margin-top:18px;
+    }
+    .inp{
+      flex:1; padding:12px 14px; border-radius:12px; border:1px solid rgba(255,255,255,.12);
+      background:#0a1023; color:var(--text); outline:none;
+      transition:border-color .15s, box-shadow .15s;
+    }
+    .inp:focus{ border-color: var(--accent); box-shadow:0 0 0 6px var(--ring); }
+    .btn{
+      padding:12px 16px; border-radius:12px; border:1px solid rgba(255,255,255,.12);
+      background:linear-gradient(180deg, #3b82f6, #2563eb); color:white; font-weight:700;
+      letter-spacing:.2px; cursor:pointer; transition: transform .05s ease-in-out, box-shadow .15s;
+      box-shadow: 0 10px 24px rgba(37,99,235,.35);
+    }
+    .btn:hover{ box-shadow: 0 12px 28px rgba(37,99,235,.45); }
+    .btn:active{ transform: translateY(1px); }
+    .status{
+      margin-top:12px; font-size:14px; min-height:20px;
+    }
+    .status.ok{ color: var(--ok); }
+    .status.bad{ color: var(--bad); }
+    .clue{
+      margin-top:16px; padding:16px; border-radius:14px;
+      border:1px dashed rgba(255,255,255,.15); background: rgba(96,165,250,.08);
+      display:none; position:relative;
+      animation: pop .25s ease-out;
+    }
+    .clue pre{ margin:0; white-space:pre-wrap; word-break:break-word; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
+    .copy{
+      position:absolute; top:10px; right:10px; font-size:12px; padding:8px 10px;
+      background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12);
+      border-radius:10px; cursor:pointer; color:#e5e7eb;
+    }
+    @keyframes pop{ from{ transform:scale(.98); opacity:0 } to{ transform:scale(1); opacity:1 } }
+    .footer{ margin-top:16px; color:var(--muted); font-size:12px; }
+    .hint{ color:#a5b4fc }
+    .badge{
+      font-size:11px; padding:4px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.06); color:#cbd5e1; margin-left:8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card" role="region" aria-labelledby="title">
+    <div class="header">
+      <div class="lock" aria-hidden="true">
+        <!-- tiny lock svg -->
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path d="M7 10V8a5 5 0 0 1 10 0v2" stroke="#c7d2fe" stroke-width="1.6"/>
+          <rect x="5" y="10" width="14" height="10" rx="2.2" stroke="#bfdbfe" stroke-width="1.6"/>
+          <circle cx="12" cy="15" r="1.4" fill="#93c5fd"/>
+        </svg>
+      </div>
+      <div>
+        <h1 id="title">Treasure Hunt</h1>
+        <p class="sub">
+          Enter your secret key to unlock the clue
+          <span class="badge" id="studentBadge">student</span>
+        </p>
+      </div>
+    </div>
+
+    <form class="form" id="form" autocomplete="off">
+      <label class="sr-only" for="keyInput">Secret key</label>
+      <input id="keyInput" class="inp" name="key" type="password" placeholder="Enter your key…" required />
+      <button class="btn" type="submit">Unlock</button>
+    </form>
+
+    <div id="status" class="status" aria-live="polite"></div>
+
+    <div id="clue" class="clue" aria-hidden="true">
+      <button id="copyBtn" class="copy" type="button" title="Copy">Copy</button>
+      <pre id="clueText"></pre>
+    </div>
+
+    <div class="footer">
+      Hint: We verify <span class="hint">SHA-256(SALT + key)</span> in your browser.
+    </div>
+  </div>
+
+  <!-- Configuration per student (mounted as ConfigMap or baked into image) -->
+  <script src="config.js"></script>
+  <script>
+    // Small helpers
+    const enc = new TextEncoder();
+    async function sha256Hex(s){
+      const buf = await crypto.subtle.digest('SHA-256', enc.encode(s));
+      return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join('');
+    }
+    function setStatus(msg, ok=false, bad=false){
+      const el = document.getElementById('status');
+      el.textContent = msg;
+      el.className = 'status' + (ok?' ok':'') + (bad?' bad':'');
+    }
+
+    // Bootstrap from CONFIG
+    const CFG = window.CONFIG || {
+      title: "Treasure Hunt",
+      student: "student",
+      salt: "demo-salt",
+      keyHash: "0000", // obviously wrong; replace via config.js
+      clue: "CLUE: Demo only. Replace config.js."
+    };
+
+    // Paint static bits
+    document.getElementById('title').textContent = CFG.title || "Treasure Hunt";
+    document.getElementById('studentBadge').textContent = CFG.student || "student";
+
+    // Form logic
+    const form = document.getElementById('form');
+    const keyInput = document.getElementById('keyInput');
+    const clueBox = document.getElementById('clue');
+    const clueText = document.getElementById('clueText');
+    const copyBtn = document.getElementById('copyBtn');
+
+    form.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const key = keyInput.value.trim();
+      if(!key){ setStatus("Please enter your key."); return; }
+      setStatus("Verifying…");
+      try{
+        const calc = (await sha256Hex((CFG.salt||"") + key)).toLowerCase();
+        const expect = (CFG.keyHash||"").toLowerCase();
+        const ok = expect && calc === expect;
+        if(ok){
+          setStatus("Unlocked ✓", true, false);
+          clueText.textContent = CFG.clue || "No clue configured.";
+          clueBox.style.display = 'block';
+          clueBox.setAttribute('aria-hidden','false');
+        }else{
+          setStatus("Wrong key ✗", false, true);
+          clueBox.style.display = 'none';
+          clueBox.setAttribute('aria-hidden','true');
+        }
+      }catch(err){
+        console.error(err);
+        setStatus("Error verifying key.", false, true);
+      }
+    });
+
+    copyBtn.addEventListener('click', async ()=>{
+      try{
+        await navigator.clipboard.writeText(clueText.textContent || "");
+        copyBtn.textContent = "Copied!";
+        setTimeout(()=> copyBtn.textContent = "Copy", 1200);
+      }catch(_){/*ignore*/}
+    });
+  </script>
+</body>
+</html>

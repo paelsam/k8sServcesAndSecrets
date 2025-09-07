@@ -1,0 +1,27 @@
+{
+  "name": "k8s-in-codespaces",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
+    "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
+      "kubectl": "latest",
+      "helm": "latest",
+      "minikube": "none"
+    }
+  },
+
+   // install k3d
+  "postCreateCommand": "curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash",
+
+  // create the cluster mapping 80/443 to the load balancer
+  "postStartCommand": "k3d cluster create dev -p '80:80@loadbalancer' -p '443:443@loadbalancer' --agents 1 --wait || true",
+
+  // make the ports auto-forward and appear in the Ports tab
+  "forwardPorts": [80, 443],
+
+  // if you want them to be publicly accessible from the Codespaces UI
+  "portsAttributes": {
+    "80": { "label": "k3d http", "autoForward": true },
+    "443": { "label": "k3d https", "autoForward": true }
+  }
+}
