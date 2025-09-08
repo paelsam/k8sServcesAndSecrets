@@ -42,7 +42,9 @@ spec:
   selector:
     app: treasure-ana
   ports:
-    - port: 80
+    - name: http
+      port: 80
       targetPort: 80
-  type: ClusterIP
+      # nodePort: 31080   # (opcional) fija uno en el rango 30000–32767
+  type: NodePort
 
