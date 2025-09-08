@@ -15,18 +15,18 @@ spec:
     spec:
       containers:
         - name: web
-          image: fredyball/treasure-fe:latest
+          image: ghcr.io/fredyunivalle/treasure-new:latest
           ports:
             - containerPort: 80
           env:
             - name: TITLE
-              value: "Treasure Hunt — Ana"
+              value: "Treasure Hunt — Fredy"
             - name: STUDENT
-              value: "ana"
+              value: "Fredy"
             - name: SALT
               value: "DS3univalle"
             - name: KEY_HASH
-              value: "76ed6cf365c36cf8c05792c681a0b7d3008d0a2b6d932d7a34457e0920e8a513"
+              value: "e03071406de634efb44ae42fb52a19523ac5646281b91de291133e2c37106da0"
             - name: CLUE
               valueFrom:
                 secretKeyRef:
