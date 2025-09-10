@@ -158,7 +158,17 @@ Generate base64 easily:
 echo -n 'CLUE-A: "PAPITAS"' | base64
 ```
 
+**Encode/Decode manually with base64:**
+```bash
+# Encode a value (Linux/macOS)
+echo -n 'S3cr3t!' | base64  # -> UzNjcjN0IQ==
+
+# Decode
+echo -n 'UzNjcjN0IQ==' | base64 --decode
+```
+
 ---
+
 
 ## 7. Kubernetes: Deployment + Service
 
